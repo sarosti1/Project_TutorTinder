@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutor-Tinder</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 800px; margin: auto; }
+        .section { margin: 20px 0; }
+        input, textarea, select, button { width: 100%; padding: 10px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to Tutor-Tinder</h1>
+        <p>Find the perfect tutor to help you learn and achieve your goals!</p>
+
+        <div class="section">
+            <h2>Describe Your Problem</h2>
+            <textarea id="problem" placeholder="Enter your question or problem"></textarea>
+            <button onclick="getSuggestions()">Get Suggestions</button>
+            <div id="suggestions"></div>
+        </div>
+
+        <div class="section">
+            <h2>Availability and Subject</h2>
+            <input type="text" id="name" placeholder="Your Name">
+            <input type="text" id="subject" placeholder="Subject (e.g., Math, Physics)">
+            <label for="availability">Drag and Drop Availability:</label>
+            <input type="datetime-local" id="availability">
+            <button onclick="checkAvailability()">Check Available Tutors</button>
+            <div id="matches"></div>
+        </div>
+
+        <div class="section">
+            <h2>Book a Session</h2>
+            <input type="email" id="email" placeholder="Your Email">
+            <button onclick="bookSession()">Book</button>
+            <div id="booking-status"></div>
+        </div>
+    </div>
+
+    <script>
+        async function getSuggestions() {
+            const problem = document.getElementById("problem").value;
+            const response = await fetch("/api/suggest_questions", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ problem })
+            });
+            const data = await response.json();
+            document.getElementById("suggestions").innerHTML = `
+                <h3>Suggested Questions</h3>
+                <ul>${data.questions.map(q => `<li>${q}</li>`).join("")}</ul>
+                <h3>Recommended Videos</h3>
+                <ul>${data.videos.map(v => `<li><a href="${v}" target="_blank">${v}</a></li>`).join("")}</ul>
+            `;
+        }
+
+        async function checkAvailability() {
+            const name = document.getElementById("name").value;
+            const subject = document.getElementById("subject").value;
+            const availability = [document.getElementById("availability").value];
+            const response = await fetch("/api/check_availability", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name, subject, availability })
+            });
+            const data = await response.json();
+            document.getElementById("matches").innerHTML = `
+                <h3>Available Tutors</h3>
+                <ul>${data.map(match => `<li>${match.tutor} - Slots: ${match.slots.join(", ")}</li>`).join("")}</ul>
+            `;
+        }
+
+        async function bookSession() {
+            const email = document.getElementById("email").value;
+            const tutor = prompt("Enter the tutor's name:");
+            const slot = prompt("Enter the preferred time slot:");
+            const response = await fetch("/api/book_session", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, tutor, slot })
+            });
+            const data = await response.json();
+            document.getElementById("booking-status").innerHTML = `<p>${data.message}</p>`;
+        }
+    </script>
+</body>
+</html>
