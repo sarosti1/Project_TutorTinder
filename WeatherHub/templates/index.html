@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WeatherHub</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>WeatherHub</h1>
+        <input id="city-input" type="text" placeholder="Enter city name">
+        <button onclick="fetchWeather()">Get Weather</button>
+        <div id="weather-data"></div>
+        <h2>Favorites</h2>
+        <ul id="favorites-list"></ul>
+        <button onclick="loadFavorites()">Load Favorites</button>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>
